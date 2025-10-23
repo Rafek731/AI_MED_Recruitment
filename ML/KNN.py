@@ -3,7 +3,7 @@ from collections import Counter
 
 from .Model import Model
 
-class KNN_classifier:
+class KNN_classifier(Model):
     def __init__(self, k: int=5):
         self.k = k
 
@@ -13,10 +13,10 @@ class KNN_classifier:
         self.y = y
         
 
-    def predict(self, data: np.ndarray) -> int:
-        """Calculate distances of the points to the given data (point)"""
+    def predict(self, features: np.ndarray) -> int:
+        """Calculate distances of the points to the given vector of features (point)"""
         # Since sqrt(x) is increasing we can just calculate sqared distance and it won't matter in sorting
-        distances = [(np.sum((X - data)**2), y) for X, y in zip(self.X, self.y)]
+        distances = [(np.sum((X - features)**2), y) for X, y in zip(self.X, self.y)]
         # Sort them in ascending order
         distances.sort(key=lambda x: x[0])
         # return the most common label

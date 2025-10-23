@@ -22,7 +22,7 @@ class Node:
         return self.value is not None
 
 
-class DecisionTree:
+class DecisionTree(Model):
     def __init__(self,
                  min_samples_split: int = 2,
                  max_depth: int = 10,
@@ -49,16 +49,16 @@ class DecisionTree:
         self.root = self._grow_tree(X, y)
         
 
-    def predict(self, record) -> int:
+    def predict(self, features) -> int:
         """Predicts label to given data
 
         Args:
-            record (np.ndarray): vector of features
+            features (np.ndarray): vector of features
 
         Returns:
             int: label of prediction
         """
-        return self._traverse_tree(record, self.root)
+        return self._traverse_tree(features, self.root)
 
 
     def _traverse_tree(self, x, node: Node) -> int:
@@ -214,4 +214,4 @@ class DecisionTree:
             float: entropy value
         """
         pxs = np.bincount(y) / len(y)
-        return -np.sum([px * np.log2(px) for px in pxs if px > 0])
+        return -np.sum([px * np.log(px) for px in pxs if px > 0])
