@@ -10,7 +10,24 @@ class Node:
                  left=None,
                  right=None,*,
                  value=None):
-        
+        """Container for a single decision-tree node.
+
+        This node may represent either an internal split (in which case
+        ``feature`` and ``threshold`` are set and ``left``/``right`` point to
+        child nodes) or a leaf (in which case ``value`` is set to the
+        predicted class label and children are ``None``).
+
+        Args:
+            feature (int | None): Index of the feature used for splitting at
+                this node. None for leaf nodes.
+            threshold (float | None): Threshold value to compare the feature
+                against to decide left/right traversal. None for leaf nodes.
+            left (Node | None): Left child node (values <= threshold go left).
+            right (Node | None): Right child node (values > threshold go right).
+            value (int | None): Class label for leaf nodes; None for internal
+                nodes.
+        """
+
         self.feature = feature
         self.threshold = threshold
         self.left = left
@@ -19,14 +36,44 @@ class Node:
     
 
     def is_leaf_node(self) -> bool:
+        """Return True if this node is a leaf (has a predicted value).
+
+        A node is considered a leaf when ``value`` is not ``None``. Internal
+        nodes used for splitting have ``value`` == ``None``.
+
+        Returns:
+            bool: True when node is a leaf, False otherwise.
+        """
+
         return self.value is not None
 
 
 class DecisionTree(Model):
+    """A simple decision tree classifier implemented from scratch.
+
+    The implementation uses information gain (entropy) to select splits and
+    supports limiting tree depth and minimum samples per split. It expects
+    integer class labels (0...n_classes-1) in ``y`` and numeric feature
+    values in ``X``.
+    """
     def __init__(self,
                  min_samples_split: int = 2,
                  max_depth: int = 10,
                  n_features: int|None = None):
+        """Create a DecisionTree classifier.
+
+        Args:
+            min_samples_split (int): Minimum number of samples required to
+                attempt a split at a node. Nodes with fewer samples become
+                leaves. Defaults to 2.
+            max_depth (int): Maximum depth of the tree. Depth counting starts
+                at 0 for the root. Defaults to 10.
+            n_features (int | None): Number of features to consider when
+                looking for the best split (useful for randomness). If None,
+                all features are considered. When provided, the value will be
+                clipped to the number of available features during fitting.
+        """
+
         super().__init__()
         self._min_samples_split = min_samples_split
         self._max_depth = max_depth
@@ -35,11 +82,30 @@ class DecisionTree(Model):
 
 
     def fit(self, X: np.ndarray, y: np.ndarray) -> None:
-        """Fits DecisionTree to given data
+        """Train the decision tree on the provided dataset.
+
+        This builds the tree in-place and stores its root node on
+        ``self.root``. The method sets ``self._n_features`` to the number of
+        features used for split search (clipped to the available feature
+        count).
 
         Args:
-            X (np.ndarray): train data
-            y (np.ndarray): train labels
+            X (np.ndarray): 2-D array of shape (n_samples, n_features) with
+                numeric feature values.
+            y (np.ndarray): 1-D integer array of shape (n_samples,) with class
+                labels (expected as non-negative integers).
+
+        Raises:
+            ValueError: If X and y have inconsistent first-dimension lengths.
+
+        Side effects:
+            - Modifies ``self._n_features`` when it was None or larger than
+              the number of features in ``X``.
+            - Sets ``self.root`` to the constructed tree Node.
+
+        Example:
+            >>> clf = DecisionTree(max_depth=5)
+            >>> clf.fit(X_train, y_train)
         """
         if self._n_features is None or self._n_features < 1:
             self._n_features = X.shape[1]
@@ -49,46 +115,71 @@ class DecisionTree(Model):
         self.root = self._grow_tree(X, y)
         
 
-    def predict(self, features) -> int:
-        """Predicts label to given data
+    def predict(self, features: np.ndarray) -> int:
+        """Predict the class label for a single feature vector.
 
         Args:
-            features (np.ndarray): vector of features
+            features (np.ndarray): 1-D array of length n_features containing
+                numeric feature values for a single sample.
 
         Returns:
-            int: label of prediction
+            int: Predicted class label (as an integer).
+
+        Notes:
+            Use this method for single-sample prediction. For multiple inputs
+            you may call this repeatedly or implement a vectorized wrapper.
         """
+
         return self._traverse_tree(features, self.root)
 
 
     def _traverse_tree(self, x, node: Node) -> int:
-        """Traverses the tree in search for right answear
+        """Recursively traverse the tree to predict the label for ``x``.
 
         Args:
-            x (np.ndarray): vector of features
-            node (Node): node to start traversing (recusively)
+            x (np.ndarray): 1-D feature array for a single sample.
+            node (Node): Current node to inspect.
 
         Returns:
-            int: label
+            int: The predicted class label from the reached leaf node.
+
+        Raises:
+            RuntimeError: If an internal node has no valid children (should not
+                happen in a correctly built tree).
         """
+
         if node.is_leaf_node():
             return node.value
 
+        # Decide to go left or right based on the split condition
         if x[node.feature] <= node.threshold:
+            if node.left is None:
+                raise RuntimeError("Left child is missing for internal node")
             return self._traverse_tree(x, node.left)
+
+        if node.right is None:
+            raise RuntimeError("Right child is missing for internal node")
         return self._traverse_tree(x, node.right)
 
 
     def _grow_tree(self, X: np.ndarray, y: np.ndarray, depth: int=0) -> Node:
-        """Recursively grows tree
+        """Recursively build the decision tree starting from the given data.
+
+        The function examines stopping criteria (max depth, pure node or
+        insufficient samples) to decide whether to create a leaf node or to
+        search for the best split and create internal nodes.
 
         Args:
-            X (np.ndarray): feature vector
-            y (np.ndarray): labels vector
-            depth (int, optional): Variable tracking the current depth of the tree. Defaults to 0.
+            X (np.ndarray): 2-D array of shape (n_samples, n_features).
+            y (np.ndarray): 1-D array of labels of length n_samples.
+            depth (int, optional): Current depth in the tree (root=0).
 
         Returns:
-            Node: Current node from which rest of the tree grows
+            Node: A Node object representing the root of the subtree built for
+                (X, y).
+
+        Raises:
+            ValueError: If X and y have mismatched sample counts.
         """
         n_samples, n_features = X.shape
         n_labels = len(np.unique(y))
@@ -113,14 +204,16 @@ class DecisionTree(Model):
 
 
     def _most_common_label(self, y: np.ndarray) -> int:
-        """Returns most common label in given array y
+        """Return the most common label in ``y``.
 
         Args:
-            y (np.ndarray): array of labels
+            y (np.ndarray): 1-D array-like of integer labels.
 
         Returns:
-            int: most common label
+            int: The label with highest frequency. In case of a tie the
+            label returned is the one appearing first in Counter's ordering.
         """
+
         return Counter(y).most_common(1)[0][0]
 
 
@@ -163,15 +256,18 @@ class DecisionTree(Model):
 
 
     def _information_gain(self, X_column: np.ndarray, y: np.ndarray, threshold: float) -> float:
-        """Calculates IG (information gain)
+        """Compute the information gain from splitting ``X_column`` at ``threshold``.
+
+        Information gain is defined as parent_entropy - weighted_child_entropy.
 
         Args:
-            X_column (np.ndarray): Column of feature values
-            y (np.ndarray): labels corresponding to features from X_column
-            threshold (float): threshold to calculate IG with
+            X_column (np.ndarray): 1-D array with values of a single feature for all samples.
+            y (np.ndarray): 1-D array of class labels aligned with X_column``.
+            threshold (float): Numeric threshold to split the column into left (< threshold) and right (>= threshold) subsets.
 
         Returns:
-            float: Information gain
+            float: The information gain (non-negative). Returns 0.0 when a
+            split produces an empty child.
         """
 
         # parent entropy
@@ -192,26 +288,35 @@ class DecisionTree(Model):
         return parent_entropy - child_entropy
 
     def _split(self, X_column: np.ndarray, split_threshold: float) -> tuple[np.ndarray]:
-        """Splits given column of features into two (returns idxs of splitted features)
+        """Split a 1-D feature array into left and right index arrays.
+
+        Left indices correspond to samples where X_column < split_threshold.
+        Right indices correspond to samples where X_column >= split_threshold.
 
         Args:
-            X_column (np.ndarray): Column to split
-            split_threshold (float): threshold to split by
+            X_column (np.ndarray): 1-D array to partition.
+            split_threshold (float): Numeric threshold for the split.
 
         Returns:
-            tuple[np.ndarray]: left and right idxs
+            tuple[np.ndarray, np.ndarray]: (left_indices, right_indices), both
+                as 1-D integer numpy arrays.
         """
+
         return np.argwhere(X_column < split_threshold).flatten(), np.argwhere(X_column >= split_threshold).flatten()
 
 
     def _entropy(self, y: np.ndarray) -> float:
-        """Calculates entropy of given array
+        """Compute the Shannon entropy of the label distribution in ``y``.
+
+        The entropy is calculated as -sum(p_i * log(p_i)) over all label
+        classes with non-zero probability. Natural log is used.
 
         Args:
-            y (np.ndarray): array for which the entropy is to be calculated
+            y (np.ndarray): 1-D integer array of class labels.
 
         Returns:
-            float: entropy value
+            float: Entropy value (>= 0).
         """
+
         pxs = np.bincount(y) / len(y)
         return -np.sum([px * np.log(px) for px in pxs if px > 0])
