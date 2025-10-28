@@ -15,6 +15,13 @@ class Model:
         raise NotImplemented
     
     def evaluate(self, X: np.ndarray, y: np.ndarray, intermediate_states: bool = False) -> None:
+        """Prints evaluation metrics for the test set ``X`` and labels ``y``.
+
+        Args:
+            X (np.ndarray): array of feature vectors.
+            y (np.ndarray): array if labels for feature vectors from ``X``.
+            intermediate_states (bool, optional): print evaluation metrics after every feature vector. Defaults to False.
+        """
         eval = Evaluator()
         if intermediate_states:
             eval.print_head()
