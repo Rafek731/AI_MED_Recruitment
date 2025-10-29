@@ -1,10 +1,11 @@
 import numpy as np
 from .Evaluator import Evaluator
 
+
 class Model:
     """Parent class for all models"""
-    def __init__(self):
-        pass
+    def __init__(self, name:str = 'model'):
+        self.name = name
     
     # this method must be overwritten
     def fit(X: np.ndarray, y: np.ndarray) -> None:

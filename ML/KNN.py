@@ -17,13 +17,14 @@ class KNN_classifier(Model):
         k (int): Number of neighbors to consider for prediction.
     """
 
-    def __init__(self, k: int = 5):
+    def __init__(self, k: int = 5,*, name: str = 'KNN'):
         """Create a KNN classifier.
 
         Args:
             k (int, optional): Number of neighbors to use for majority vote.
                 Must be a positive integer. Defaults to 5.
         """
+        super().__init__(name)
         self.X = None
         self.y = None
         self.k = k

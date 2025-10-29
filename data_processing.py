@@ -67,7 +67,7 @@ def preprocess_data(data: pd.DataFrame, columns: list[str]|None = None) -> pd.Da
     return data
 
     
-def split_data(data: pd.DataFrame, label_col: str, test_size: float = 0.2) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def split_data(data: pd.DataFrame, label_col: str,*, test_size: float = 0.2) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Split data into training and testing sets.
 
     This function splits the provided DataFrame into training and testing

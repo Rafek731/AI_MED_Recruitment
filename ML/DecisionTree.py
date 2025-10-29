@@ -59,7 +59,9 @@ class DecisionTree(Model):
     def __init__(self,
                  min_samples_split: int = 2,
                  max_depth: int = 10,
-                 n_features: int|None = None):
+                 n_features: int|None = None,
+                 *,
+                 name: str = 'DecisionTree'):
         """Create a DecisionTree classifier.
 
         Args:
@@ -74,7 +76,7 @@ class DecisionTree(Model):
                 clipped to the number of available features during fitting.
         """
 
-        super().__init__()
+        super().__init__(name)
         self._min_samples_split = min_samples_split
         self._max_depth = max_depth
         self._n_features = n_features

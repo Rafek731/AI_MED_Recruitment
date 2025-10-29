@@ -9,8 +9,10 @@ class RandomForest(Model):
                  n_trees:int = 5,
                  min_samples_split: int = 2,
                  max_depth: int = 10,
-                 n_features: int|None = None):
-        super().__init__()
+                 n_features: int|None = None,
+                 *,
+                 name: str = 'RandomForest'):
+        super().__init__(name)
         self._n_trees = n_trees
         self._min_samples_split = min_samples_split
         self._max_depth = max_depth
