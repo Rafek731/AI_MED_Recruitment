@@ -21,7 +21,7 @@ def preprocess_data(data: pd.DataFrame, columns: list[str]|None = None) -> pd.Da
         object passed in).
       - For each selected column, string values like "1,23" are converted to
         floats by replacing the comma with a dot, then casting to
-        ``np.float64``. After conversion each column is scaled using
+        ``data_processing._float_t``. After conversion each column is scaled using
         min-max normalization: (x - min) / (max - min).
 
     Args:
