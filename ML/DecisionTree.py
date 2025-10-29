@@ -133,6 +133,9 @@ class DecisionTree(Model):
         """
 
         return self._traverse_tree(features, self.root)
+    
+    def clear(self) -> None:
+        self._root=None
 
 
     def _traverse_tree(self, x, node: Node) -> int:

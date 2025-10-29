@@ -50,7 +50,6 @@ class KNN_classifier(Model):
 
         self.X = X
         self.y = y
-        
 
     def predict(self, features: np.ndarray) -> int:
         """Predict the class label for a single feature vector.
@@ -82,3 +81,8 @@ class KNN_classifier(Model):
         # Return the most common label
         counter = Counter(k_nearest_labels)
         return counter.most_common(1)[0][0]
+    
+    def clear(self) -> None:
+        """Clear the stored training data."""
+        self.X = None
+        self.y = None
