@@ -12,7 +12,7 @@ class RandomForest(Model):
     are made by majority vote among the trees.
     """
     def __init__(self, 
-                 n_trees:int = 5,
+                 n_trees: int = 5,
                  min_samples_split: int = 2,
                  max_depth: int = 10,
                  n_features: int|None = None,

@@ -99,15 +99,6 @@ class DecisionTree(Model):
 
         Raises:
             ValueError: If X and y have inconsistent first-dimension lengths.
-
-        Side effects:
-            - Modifies ``self._n_features`` when it was None or larger than
-              the number of features in ``X``.
-            - Sets ``self.root`` to the constructed tree Node.
-
-        Example:
-            >>> clf = DecisionTree(max_depth=5)
-            >>> clf.fit(X_train, y_train)
         """
         if self._n_features is None or self._n_features < 1:
             self._n_features = X.shape[1]
@@ -190,7 +181,7 @@ class DecisionTree(Model):
         n_labels = len(np.unique(y))
 
         # Check stopping criteria
-        if depth >= self._max_depth or n_labels == 1 or n_samples < self._min_samples_split:
+        if depth >= self._max_depth or n_labels == 1 or n_samples <= self._min_samples_split:
             # If this condition is satisfied then we're in leaf node and we have to calculate its value
             return Node(value=self._most_common_label(y))
         

@@ -42,7 +42,7 @@ class Evaluator:
 
     @property
     def metrics(self) -> str:
-        return f'Accuracy={self.accuracy:.2f} | Precision={self.precision:.2f} | Recall={self.recall:.2f} | F1 Score={self.f1_score:.2f}'
+        return f'Accuracy={self.accuracy:.2%} | Precision={self.precision:.2%} | Recall={self.recall:.2%} | F1 Score={self.f1_score:.2%}'
     
     def print_head(self) -> None:
         print('Evaluation metrics:\n num  | Accuracy | Precision | Recall | F1_Score |')
