@@ -63,12 +63,7 @@ class Model:
         return self.name, self.eval.metrics, self.eval.conf_matrix
     
     def print_results(self) -> None:
-        """Print evaluation metrics stored in the Evaluator.
-
-        This helper prints the model name, the metrics dictionary and the
-        confusion matrix currently held by ``self.eval``. It does not modify
-        internal state.
-        """
+        """Print evaluation metrics stored in the Evaluator."""
 
         print(f"\nEvaluation results for model: {self.name}\n")
         print(self.eval.metrics, end='\n\n')
