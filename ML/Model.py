@@ -46,10 +46,6 @@ class Model:
                 - conf_matrix: confusion matrix stored in
                   ``self.eval.conf_matrix`` (type depends on Evaluator
                   implementation).
-
-        Side effects:
-            - Mutates ``self.eval`` by recording judgments.
-            - May print to stdout when ``intermediate_states`` is True.
         """
         if intermediate_states:
             self.eval.print_head()
